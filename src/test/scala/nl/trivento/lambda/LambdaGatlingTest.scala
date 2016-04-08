@@ -19,9 +19,11 @@ class LambdaGatlingTest extends Simulation {
         .get("/node"))
 
 
-//  setUp(nodescn.inject(constantUsersPerSec(25) during (60 seconds)),
-//    javascn.inject(constantUsersPerSec(25) during (60 seconds)))
+//  setUp(nodescn.inject(constantUsersPerSec(25) during (60 seconds))
+//    ,
+//    javascn.inject(constantUsersPerSec(25) during (10 seconds)))
+//  )
 //        .protocols(conf)
-  setUp(javascn.inject(constantUsersPerSec(100) during (60 seconds)))
+  setUp(javascn.inject(constantUsersPerSec(1) during (5 minutes)))
         .protocols(conf)
 }
