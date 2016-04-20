@@ -11,7 +11,7 @@ import com.amazonaws.services.lambda.model.InvokeRequest
 import io.gatling.core.action.Chainable
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{Protocol, Protocols}
-import io.gatling.core.result.message.OK
+import io.gatling.core.result.message.{KO, OK}
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper
@@ -28,11 +28,12 @@ case class LambdaProtocol(awsAccessKeyId: String, awsSecretAccessKey: String) ex
     return new String(bytes, "UTF-8")
   }
 
-  def call(functionName: String): Unit = {
+  def call(functionName: String): Int = {
     val request = new InvokeRequest
     request.setFunctionName(functionName)
     val result = lambdaClient.invoke(request)
     println(bytesToString(result.getPayload))
+    result.getStatusCode
   }
 }
 
@@ -40,9 +41,12 @@ class FunctionCall(functionName: String, protocol: LambdaProtocol, val next: Act
 
   override def execute(session: Session): Unit = {
     val start = TimeHelper.nowMillis
-    protocol.call(functionName)
+    val result = protocol.call(functionName)
     val end = TimeHelper.nowMillis
-    writeRequestData(session, "Call function", start, start, end, end, OK )
+    if(result >= 200 && result <= 299)
+      writeRequestData(session, "Call function", start, start, end, end, OK )
+    else
+      writeRequestData(session, "Call function", start, start, end, end, KO )
     next ! session
   }
 }
