@@ -16,6 +16,7 @@ class LambdaGatlingTest extends Simulation {
 
   val lconf = LambdaProtocol("key", "pass")
 
+
 //  val lambdaProtocol = LambdaProtocol
 
   val javascn = scenario("Java Test")
@@ -25,6 +26,8 @@ class LambdaGatlingTest extends Simulation {
           http("node lambda")
           .get("/node")
         )
+  val staticscn = scenario("Mock Test")
+        .exec(http("static api Gateway").get("/static"))
 
   val laction = scenario("Lambda call")
         .exec(AWSLambdaBuilder("SmallJava"))
@@ -38,6 +41,11 @@ class LambdaGatlingTest extends Simulation {
 //  setUp(javascn.inject(constantUsersPerSec(1) during (5 minutes)))
 //        .protocols(conf)
 
-    setUp(laction.inject(constantUsersPerSec(50) during (5 minutes)))
-      .protocols(lconf)
+//    setUp(laction.inject(constantUsersPerSec(50) during (5 minutes)),
+//javascn.inject(constantUsersPerSec(50) during (5 minutes))
+//)
+//      .protocols(lconf, conf)
+
+  setUp(staticscn.inject(constantUsersPerSec(50) during (5 minutes)))
+        .protocols(conf)
 }
